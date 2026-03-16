@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClaimIt - Find Your Perfect Insurance Policy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d1b4e 50%, #1a1a2e 100%);
+            background-attachment: fixed;
+        }
+        
+        .animated-bg {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        .step-line {
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+        }
+        
+        .step-completed .step-line {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+        }
+        
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .shimmer {
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .comparison-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .comparison-card:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+            transform: scale(1.02);
+        }
+        
+        .badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .recommended-badge {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    
+    <!-- Floating Particles Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="top: 10%; left: 10%;"></div>
+        <div class="absolute w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="top: 50%; right: 10%; animation-delay: 2s;"></div>
+        <div class="absolute w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="bottom: 10%; left: 50%; animation-delay: 4s;"></div>
+    </div>
+
+    <!-- Header -->
+    <div class="max-w-7xl mx-auto mb-12 relative z-10">
+        <div class="text-center">
+            <div class="inline-block mb-4">
+                <div class="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 pulse-slow">
+                    ClaimIt
+                </div>
+            </div>
+            <p class="text-white text-xl opacity-90 font-light">AI-Powered Insurance Policy Finder</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="formPage" class="max-w-5xl mx-auto relative z-10">
+        
+        <!-- Progress Steps -->
+        <div class="flex justify-between items-center mb-12 px-4">
+            <div class="flex-1 flex items-center step-completed" id="step1-container">
+                <div class="relative">
+                    <div id="step1-indicator" class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br from-green-400 to-green-600 shadow-lg">
+                        ✓
+                    </div>
+                </div>
+                <div class="flex-1 h-0.5 bg-gradient-to-r from-green-500 to-gray-600 mx-3"></div>
+            </div>
+            <div class="flex-1 flex items-center" id="step2-container">
+                <div class="relative">
+                    <div id="step2-indicator" class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br from-purple-500 to-blue-500 shadow-lg ring-4 ring-purple-500 ring-opacity-50">
+                        2
+                    </div>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-600 mx-3"></div>
+            </div>
+            <div class="flex-1 flex items-center" id="step3-container">
+                <div class="relative">
+                    <div id="step3-indicator" class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-gray-400 bg-gray-700 shadow-lg">
+                        3
+                    </div>
+                </div>
+                <div class="flex-1 h-0.5 bg-gray-600 mx-3"></div>
+            </div>
+            <div id="step4-container">
+                <div class="relative">
+                    <div id="step4-indicator" class="w-12 h-12 rounded-full flex items-center justify-center font-bold text-gray-400 bg-gray-700 shadow-lg">
+                        4
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="glass-card rounded-3xl shadow-2xl p-10 fade-in">
+            
+            <!-- Step 1: Personal Information -->
+            <div id="step1" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-white mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300">Personal Information</h2>
+                    <p class="text-gray-300 text-lg">Let's start with some basic details about you</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Full Name</label>
+                            <input type="text" id="fullName" placeholder="John Doe" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Age</label>
+                            <input type="number" id="age" placeholder="30" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Email</label>
+                            <input type="email" id="email" placeholder="john@example.com" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="+91 98765 43210" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-200 mb-3">Gender</label>
+                        <div class="flex gap-4">
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="gender" value="male" class="peer hidden">
+                                <div class="px-6 py-4 rounded-xl bg-white bg-opacity-5 border border-white border-opacity-20 text-center text-white peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500 peer-checked:border-transparent transition-all">
+                                    Male
+                                </div>
+                            </label>
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="gender" value="female" class="peer hidden">
+                                <div class="px-6 py-4 rounded-xl bg-white bg-opacity-5 border border-white border-opacity-20 text-center text-white peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500 peer-checked:border-transparent transition-all">
+                                    Female
+                                </div>
+                            </label>
+                            <label class="flex-1 cursor-pointer">
+                                <input type="radio" name="gender" value="other" class="peer hidden">
+                                <div class="px-6 py-4 rounded-xl bg-white bg-opacity-5 border border-white border-opacity-20 text-center text-white peer-checked:bg-gradient-to-r peer-checked:from-purple-500 peer-checked:to-blue-500 peer-checked:border-transparent transition-all">
+                                    Other
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Insurance Preferences -->
+            <div id="step2" class="fade-in">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-white mb-3">Insurance Preferences</h2>
+                    <p class="text-gray-300 text-lg">What type of insurance are you looking for?</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-200 mb-3">Insurance Type</label>
+                        <select id="insuranceType" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white focus:outline-none input-glow transition-all">
+                            <option value="" class="bg-gray-800">Select Insurance Type</option>
+                            <option value="health" class="bg-gray-800">🏥 Health Insurance</option>
+                            <option value="life" class="bg-gray-800">❤️ Life Insurance</option>
+                            <option value="vehicle" class="bg-gray-800">🚗 Vehicle Insurance</option>
+                            <option value="travel" class="bg-gray-800">✈️ Travel Insurance</option>
+                            <option value="home" class="bg-gray-800">🏠 Home Insurance</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-200 mb-3">Coverage Amount (₹)</label>
+                        <input type="number" id="coverageAmount" placeholder="500000" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        <p class="text-sm text-gray-400 mt-2">Minimum coverage you're looking for</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Policy Duration (Years)</label>
+                            <select id="policyDuration" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white focus:outline-none input-glow transition-all">
+                                <option value="1" class="bg-gray-800">1 Year</option>
+                                <option value="2" class="bg-gray-800">2 Years</option>
+                                <option value="3" class="bg-gray-800">3 Years</option>
+                                <option value="5" class="bg-gray-800">5 Years</option>
+                                <option value="10" class="bg-gray-800">10 Years</option>
+                                <option value="20" class="bg-gray-800">20 Years</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Family Size</label>
+                            <input type="number" id="familySize" placeholder="4" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Budget & Requirements -->
+            <div id="step3" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-white mb-3">Budget & Requirements</h2>
+                    <p class="text-gray-300 text-lg">Help us understand your financial preferences</p>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Monthly Budget (₹)</label>
+                            <input type="number" id="monthlyBudget" placeholder="5000" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-200 mb-3">Annual Income (₹)</label>
+                            <input type="number" id="annualIncome" placeholder="600000" class="w-full px-5 py-4 rounded-xl bg-white bg-opacity-10 border border-white border-opacity-20 text-white placeholder-gray-400 focus:outline-none input-glow transition-all">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-200 mb-3">Existing Health Conditions</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="diabetes" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    Diabetes
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="hypertension" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    Hypertension
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="heart" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    Heart Disease
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="none" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    None
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-200 mb-3">Priority Features</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="cashless" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    💳 Cashless Treatment
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="maternity" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    👶 Maternity Coverage
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="criticalIllness" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    🏥 Critical Illness
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" value="ambulance" class="peer hidden">
+                                <div class="px-4 py-3 rounded-lg bg-white bg-opacity-5 border border-white border-opacity-20 text-white text-center peer-checked:bg-purple-500 peer-checked:border-transparent transition-all">
+                                    🚑 Ambulance Service
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Review & Submit -->
+            <div id="step4" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-white mb-3">Review Your Information</h2>
+                    <p class="text-gray-300 text-lg">Please verify your details before we find the best policies</p>
+                </div>
+                
+                <div id="reviewContent" class="space-y-3">
+                    <!-- Review content will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-10 pt-8 border-t border-white border-opacity-10">
+                <button id="prevBtn" onclick="changeStep(-1)" class="px-8 py-4 bg-white bg-opacity-10 text-white rounded-xl font-semibold hover:bg-opacity-20 transition-all duration-300 border border-white border-opacity-20 hidden">
+                    ← Previous
+                </button>
+                <div class="flex-1"></div>
+                <button id="nextBtn" onclick="changeStep(1)" class="px-10 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-bold hover:from-purple-600 hover:to-blue-600 transition-all duration-300 shadow-xl">
+                    Next Step →
+                </button>
+                <button id="submitBtn" onclick="submitForm()" class="px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-bold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-xl hidden">
+                    🚀 Find My Policies
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Page (Hidden Initially) -->
+    <div id="resultsPage" class="max-w-7xl mx-auto relative z-10 hidden">
+        
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">Your Personalized Policy Recommendations</h1>
+            <p class="text-gray-300 text-xl">AI has analyzed 100+ policies and found the best matches for you</p>
+        </div>
+
+        <!-- User Info Summary -->
+        <div class="glass-card rounded-2xl p-6 mb-8">
+            <div class="flex flex-wrap gap-4 text-white">
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">👤</span>
+                    <span id="summaryName" class="font-semibold">John Doe, 30</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">🏥</span>
+                    <span id="summaryType">Health Insurance</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">💰</span>
+                    <span id="summaryCoverage">₹5,00,000 Coverage</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-purple-400">📅</span>
+                    <span id="summaryDuration">5 Years</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Sort -->
+        <div class="glass-card rounded-2xl p-6 mb-8">
+            <div class="flex flex-wrap gap-4 items-center">
+                <button class="px-4 py-2 bg-purple-500 text-white rounded-lg font-semibold">All Policies</button>
+                <button class="px-4 py-2 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">Best Match</button>
+                <button class="px-4 py-2 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">Lowest Premium</button>
+                <button class="px-4 py-2 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">Highest Coverage</button>
+                <div class="ml-auto">
+                    <select class="px-4 py-2 bg-white bg-opacity-10 text-white rounded-lg border border-white border-opacity-20">
+                        <option class="bg-gray-800">Sort by: Recommended</option>
+                        <option class="bg-gray-800">Price: Low to High</option>
+                        <option class="bg-gray-800">Price: High to Low</option>
+                        <option class="bg-gray-800">Coverage: High to Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Cards Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            
+            <!-- Policy Card 1 - Recommended -->
+            <div class="comparison-card rounded-2xl p-6 card-hover">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Star Health Comprehensive</h3>
+                        <p class="text-gray-400">Star Health Insurance</p>
+                    </div>
+                    <span class="badge recommended-badge text-white">✨ Recommended</span>
+                </div>
+                
+                <div class="flex items-baseline gap-2 mb-6">
+                    <span class="text-4xl font-bold text-white">₹8,499</span>
+                    <span class="text-gray-400">/year</span>
+                </div>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Coverage up to ₹5,00,000</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Cashless at 12,000+ hospitals</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Free annual health checkup</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Maternity cover available</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">96% claim settlement ratio</span>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-white border-opacity-10">
+                    <div class="flex gap-3">
+                        <button class="flex-1 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-blue-600 transition-all">
+                            View Details
+                        </button>
+                        <button class="px-6 py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-sm text-blue-400 font-semibold">🎯 92% Match Score</span>
+                </div>
+            </div>
+
+            <!-- Policy Card 3 -->
+            <div class="comparison-card rounded-2xl p-6 card-hover">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Care Supreme</h3>
+                        <p class="text-gray-400">Care Health Insurance</p>
+                    </div>
+                    <span class="badge text-white">Best Value</span>
+                </div>
+                
+                <div class="flex items-baseline gap-2 mb-6">
+                    <span class="text-4xl font-bold text-white">₹7,850</span>
+                    <span class="text-gray-400">/year</span>
+                </div>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Coverage up to ₹5,00,000</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Cashless at 9,500+ hospitals</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">No pre-policy medical tests</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Restoration benefit up to 100%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">94% claim settlement ratio</span>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-white border-opacity-10">
+                    <div class="flex gap-3">
+                        <button class="flex-1 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-blue-600 transition-all">
+                            View Details
+                        </button>
+                        <button class="px-6 py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-sm text-yellow-400 font-semibold">🎯 89% Match Score</span>
+                </div>
+            </div>
+
+            <!-- Policy Card 4 -->
+            <div class="comparison-card rounded-2xl p-6 card-hover">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Max Bupa Health Guard</h3>
+                        <p class="text-gray-400">Niva Bupa Health Insurance</p>
+                    </div>
+                    <span class="badge text-white">Premium</span>
+                </div>
+                
+                <div class="flex items-baseline gap-2 mb-6">
+                    <span class="text-4xl font-bold text-white">₹10,999</span>
+                    <span class="text-gray-400">/year</span>
+                </div>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Coverage up to ₹5,00,000</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Cashless at 8,000+ hospitals</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Worldwide emergency cover</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Unlimited e-consultations</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">99% claim settlement ratio</span>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-white border-opacity-10">
+                    <div class="flex gap-3">
+                        <button class="flex-1 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-blue-600 transition-all">
+                            View Details
+                        </button>
+                        <button class="px-6 py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-sm text-indigo-400 font-semibold">🎯 87% Match Score</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Detailed Comparison Table -->
+        <div class="glass-card rounded-2xl p-8 mb-8">
+            <h2 class="text-3xl font-bold text-white mb-6">Detailed Side-by-Side Comparison</h2>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white border-opacity-20">
+                            <th class="py-4 px-4 text-gray-300 font-semibold">Feature</th>
+                            <th class="py-4 px-4 text-white font-semibold">Star Health</th>
+                            <th class="py-4 px-4 text-white font-semibold">HDFC ERGO</th>
+                            <th class="py-4 px-4 text-white font-semibold">Care Supreme</th>
+                            <th class="py-4 px-4 text-white font-semibold">Max Bupa</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Annual Premium</td>
+                            <td class="py-4 px-4 text-white">₹8,499</td>
+                            <td class="py-4 px-4 text-white">₹9,200</td>
+                            <td class="py-4 px-4 text-white">₹7,850</td>
+                            <td class="py-4 px-4 text-white">₹10,999</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Coverage Amount</td>
+                            <td class="py-4 px-4">₹5,00,000</td>
+                            <td class="py-4 px-4">₹5,00,000</td>
+                            <td class="py-4 px-4">₹5,00,000</td>
+                            <td class="py-4 px-4">₹5,00,000</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Cashless Hospitals</td>
+                            <td class="py-4 px-4">10,000+</td>
+                            <td class="py-4 px-4">12,000+</td>
+                            <td class="py-4 px-4">9,500+</td>
+                            <td class="py-4 px-4">8,000+</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Claim Settlement Ratio</td>
+                            <td class="py-4 px-4 text-green-400">98%</td>
+                            <td class="py-4 px-4 text-green-400">96%</td>
+                            <td class="py-4 px-4 text-green-400">94%</td>
+                            <td class="py-4 px-4 text-green-400">99%</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Room Rent Limit</td>
+                            <td class="py-4 px-4 text-green-400">No Limit</td>
+                            <td class="py-4 px-4">1% of sum insured</td>
+                            <td class="py-4 px-4">1% of sum insured</td>
+                            <td class="py-4 px-4">Single Private AC</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Pre-existing Diseases</td>
+                            <td class="py-4 px-4">3 years waiting</td>
+                            <td class="py-4 px-4">2 years waiting</td>
+                            <td class="py-4 px-4">3 years waiting</td>
+                            <td class="py-4 px-4">2 years waiting</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Maternity Coverage</td>
+                            <td class="py-4 px-4 text-red-400">Not Included</td>
+                            <td class="py-4 px-4 text-green-400">Included</td>
+                            <td class="py-4 px-4 text-yellow-400">Add-on</td>
+                            <td class="py-4 px-4 text-green-400">Included</td>
+                        </tr>
+                        <tr class="border-b border-white border-opacity-10">
+                            <td class="py-4 px-4 font-medium">Critical Illness Cover</td>
+                            <td class="py-4 px-4 text-green-400">Included</td>
+                            <td class="py-4 px-4 text-yellow-400">Add-on</td>
+                            <td class="py-4 px-4 text-green-400">Included</td>
+                            <td class="py-4 px-4 text-green-400">Included</td>
+                        </tr>
+                        <tr>
+                            <td class="py-4 px-4 font-medium">No Claim Bonus</td>
+                            <td class="py-4 px-4">50% of sum insured</td>
+                            <td class="py-4 px-4">100% of sum insured</td>
+                            <td class="py-4 px-4">50% of sum insured</td>
+                            <td class="py-4 px-4">75% of sum insured</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- AI Insights -->
+        <div class="glass-card rounded-2xl p-8 mb-8">
+            <h2 class="text-3xl font-bold text-white mb-6">🤖 AI Insights & Recommendations</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-purple-500 bg-opacity-20 border border-purple-500 border-opacity-30 rounded-xl p-4">
+                    <h3 class="text-lg font-semibold text-purple-300 mb-2">✨ Best Overall Match</h3>
+                    <p class="text-gray-300">Star Health Comprehensive is the best fit for your requirements based on your budget (₹8,499/year), comprehensive coverage with no room rent limit, and high claim settlement ratio of 98%.</p>
+                </div>
+                
+                <div class="bg-blue-500 bg-opacity-20 border border-blue-500 border-opacity-30 rounded-xl p-4">
+                    <h3 class="text-lg font-semibold text-blue-300 mb-2">💰 Budget-Friendly Option</h3>
+                    <p class="text-gray-300">Care Supreme offers excellent value at ₹7,850/year with 89% match to your needs. It includes restoration benefit up to 100% and requires no pre-policy medical tests.</p>
+                </div>
+                
+                <div class="bg-green-500 bg-opacity-20 border border-green-500 border-opacity-30 rounded-xl p-4">
+                    <h3 class="text-lg font-semibold text-green-300 mb-2">🏥 Premium Coverage</h3>
+                    <p class="text-gray-300">If you can stretch your budget, Max Bupa Health Guard at ₹10,999/year offers 99% claim settlement ratio, worldwide emergency cover, and unlimited e-consultations.</p>
+                </div>
+                
+                <div class="bg-yellow-500 bg-opacity-20 border border-yellow-500 border-opacity-30 rounded-xl p-4">
+                    <h3 class="text-lg font-semibold text-yellow-300 mb-2">⚠️ Important Considerations</h3>
+                    <p class="text-gray-300">Based on your age (30) and health status, consider policies with shorter waiting periods for pre-existing conditions. HDFC ERGO offers 2-year waiting period compared to 3 years in others.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="text-center space-y-4 mb-12">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="window.print()" class="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl font-bold hover:from-purple-600 hover:to-blue-600 transition-all shadow-xl">
+                    📥 Download Comparison Report
+                </button>
+                <button onclick="resetForm()" class="px-8 py-4 bg-white bg-opacity-10 text-white rounded-xl font-semibold hover:bg-opacity-20 transition-all border border-white border-opacity-20">
+                    🔄 Start New Search
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto mt-16 pb-8 text-center relative z-10">
+        <div class="glass-card rounded-2xl p-8">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-white mb-2">ClaimIt</h3>
+                <p class="text-gray-300">AI-Powered Insurance Policy Finder</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h4 class="text-white font-semibold mb-3">About</h4>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">How it Works</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Our Team</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Resources</h4>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Insurance Guide</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">FAQs</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Blog</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-white font-semibold mb-3">Legal</h4>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-purple-400 transition-colors">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-white border-opacity-10 pt-6">
+                <p class="text-gray-400 text-sm">
+                    © 2025 ClaimIt - Dr. Akhilesh Das Gupta Institute of Professional Studies
+                </p>
+                <p class="text-gray-500 text-xs mt-2">
+                    Developed by Nakshatra Jain, Nandini Mendiratta, Divyansh Pathak, Aishwarya Sharma
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function changeStep(direction) {
+            const nextStep = currentStep + direction;
+            
+            if (nextStep < 1 || nextStep > totalSteps) return;
+            
+            // Hide current step
+            document.getElementById(`step${currentStep}`).classList.add('hidden');
+            
+            // Update progress indicators
+            updateProgressIndicators(direction);
+            
+            // Show next step
+            currentStep = nextStep;
+            document.getElementById(`step${currentStep}`).classList.remove('hidden');
+            
+            // Update buttons
+            updateButtons();
+            
+            // Populate review if on step 4
+            if (currentStep === 4) {
+                populateReview();
+            }
+        }
+
+        function updateProgressIndicators(direction) {
+            const containers = ['step1-container', 'step2-container', 'step3-container', 'step4-container'];
+            const indicators = ['step1-indicator', 'step2-indicator', 'step3-indicator', 'step4-indicator'];
+            
+            // Update all steps
+            for (let i = 0; i < totalSteps; i++) {
+                const stepNum = i + 1;
+                const indicator = document.getElementById(indicators[i]);
+                const container = document.getElementById(containers[i]);
+                
+                if (stepNum < currentStep + direction) {
+                    // Completed steps
+                    indicator.className = 'w-12 h-12 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br from-green-400 to-green-600 shadow-lg';
+                    indicator.innerHTML = '✓';
+                    container.classList.add('step-completed');
+                } else if (stepNum === currentStep + direction) {
+                    // Active step
+                    indicator.className = 'w-12 h-12 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br from-purple-500 to-blue-500 shadow-lg ring-4 ring-purple-500 ring-opacity-50';
+                    indicator.innerHTML = stepNum;
+                    container.classList.remove('step-completed');
+                } else {
+                    // Inactive steps
+                    indicator.className = 'w-12 h-12 rounded-full flex items-center justify-center font-bold text-gray-400 bg-gray-700 shadow-lg';
+                    indicator.innerHTML = stepNum;
+                    container.classList.remove('step-completed');
+                }
+            }
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.classList.toggle('hidden', currentStep === 1);
+            nextBtn.classList.toggle('hidden', currentStep === totalSteps);
+            submitBtn.classList.toggle('hidden', currentStep !== totalSteps);
+        }
+
+        function populateReview() {
+            const reviewContent = document.getElementById('reviewContent');
+            const formData = {
+                'Full Name': document.getElementById('fullName').value || 'Not provided',
+                'Age': document.getElementById('age').value || 'Not provided',
+                'Email': document.getElementById('email').value || 'Not provided',
+                'Phone': document.getElementById('phone').value || 'Not provided',
+                'Gender': document.querySelector('input[name="gender"]:checked')?.value || 'Not selected',
+                'Insurance Type': document.getElementById('insuranceType').options[document.getElementById('insuranceType').selectedIndex]?.text || 'Not selected',
+                'Coverage Amount': '₹' + (document.getElementById('coverageAmount').value || '0'),
+                'Policy Duration': document.getElementById('policyDuration').value + ' years',
+                'Family Size': document.getElementById('familySize').value || 'Not provided',
+                'Monthly Budget': '₹' + (document.getElementById('monthlyBudget').value || '0'),
+                'Annual Income': '₹' + (document.getElementById('annualIncome').value || '0')
+            };
+            
+            let html = '';
+            for (const [key, value] of Object.entries(formData)) {
+                html += `
+                    <div class="flex justify-between py-3 px-4 bg-white bg-opacity-5 rounded-lg">
+                        <span class="font-semibold text-gray-200">${key}</span>
+                        <span class="text-white">${value}</span>
+                    </div>
+                `;
+            }
+            
+            reviewContent.innerHTML = html;
+        }
+
+        function submitForm() {
+            // Collect all form data
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                age: document.getElementById('age').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                gender: document.querySelector('input[name="gender"]:checked')?.value,
+                insuranceType: document.getElementById('insuranceType').value,
+                coverageAmount: document.getElementById('coverageAmount').value,
+                policyDuration: document.getElementById('policyDuration').value,
+                familySize: document.getElementById('familySize').value,
+                monthlyBudget: document.getElementById('monthlyBudget').value,
+                annualIncome: document.getElementById('annualIncome').value
+            };
+            
+            console.log('Form Data:', formData);
+            
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<span class="shimmer">🔍 Analyzing 100+ Policies...</span>';
+            submitBtn.disabled = true;
+            
+            // Simulate API call
+            setTimeout(() => {
+                // Hide form, show results
+                document.getElementById('formPage').classList.add('hidden');
+                document.getElementById('resultsPage').classList.remove('hidden');
+                
+                // Update summary
+                document.getElementById('summaryName').textContent = `${formData.fullName || 'User'}, ${formData.age || 'N/A'}`;
+                document.getElementById('summaryType').textContent = document.getElementById('insuranceType').options[document.getElementById('insuranceType').selectedIndex]?.text || 'Insurance';
+                document.getElementById('summaryCoverage').textContent = `₹${formData.coverageAmount || '0'} Coverage`;
+                document.getElementById('summaryDuration').textContent = `${formData.policyDuration || '0'} Years`;
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 2500);
+        }
+
+        function resetForm() {
+            // Reload page to reset
+            location.reload();
+        }
+
+        // Initialize
+        updateButtons();
+        updateProgressIndicators(0);
+    </script>
+
+</body>
+</html>-6">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Coverage up to ₹5,00,000</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Cashless treatment at 10,000+ hospitals</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">No room rent limit</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">Critical illness cover included</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400">✓</span>
+                        <span class="text-gray-300">98% claim settlement ratio</span>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-white border-opacity-10">
+                    <div class="flex gap-3">
+                        <button class="flex-1 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-blue-600 transition-all">
+                            View Details
+                        </button>
+                        <button class="px-6 py-3 bg-white bg-opacity-10 text-white rounded-lg hover:bg-opacity-20 transition-all">
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <span class="text-sm text-purple-400 font-semibold">🎯 95% Match Score</span>
+                </div>
+            </div>
+
+            <!-- Policy Card 2 -->
+            <div class="comparison-card rounded-2xl p-6 card-hover">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">HDFC ERGO Health Plus</h3>
+                        <p class="text-gray-400">HDFC ERGO Insurance</p>
+                    </div>
+                    <span class="badge text-white">Popular</span>
+                </div>
+                
+                <div class="flex items-baseline gap-2 mb-6">
+                    <span class="text-4xl font-bold text-white">₹9,200</span>
+                    <span class="text-gray-400">/year</span>
+                </div>
+                
+                <div class="space-y-3 mb
